@@ -1,0 +1,47 @@
+#!/bin/bash
+# -----------------------------------------------------------------------------
+# USAGE:
+# ./makesample repo 10 1 1
+# -----------------------------------------------------------------------------
+
+ROOT="repo"
+TRAIN="10"
+TEST="1"
+VALID="1"
+
+if [ "$1" != "" ]; then
+   ROOT=$1
+fi
+if [ "$2" != "" ]; then
+   TRAIN=$2
+fi
+if [ "$3" != "" ]; then
+   TEST=$3
+fi
+if [ "$4" != "" ]; then
+   VALID=$4
+fi
+
+mkdir ${ROOT}/model -p
+mkdir ${ROOT}/data  -p
+
+for NET in ${ROOT}/*.bif; do
+   NAME=$(basename "$NET")
+   NAME=${NAME%.bif}
+
+   SEED=$(date +%N)
+   echo "libra bnsample -m ${NET} -o ${ROOT}/data/${NAME}.train -n ${TRAIN} -seed ${SEED}"
+         libra bnsample -m ${NET} -o ${ROOT}/data/${NAME}.train -n ${TRAIN} -seed ${SEED}
+
+   SEED=$(date +%N)
+   echo "libra bnsample -m ${NET} -o ${ROOT}/data/${NAME}.test -n ${TEST} -seed ${SEED}"
+         libra bnsample -m ${NET} -o ${ROOT}/data/${NAME}.test -n ${TEST} -seed ${SEED}
+
+   SEED=$(date +%N)
+   echo "libra bnsample -m ${NET} -o ${ROOT}/data/${NAME}.valid -n ${VALID} -seed ${SEED}"
+         libra bnsample -m ${NET} -o ${ROOT}/data/${NAME}.valid -n ${VALID} -seed ${SEED}
+   
+   echo "libra mscore -m ${NET} -i ${ROOT}/data/${NAME}.test &> ${ROOT}/model/${NAME}.score"
+         libra mscore -m ${NET} -i ${ROOT}/data/${NAME}.test &> ${ROOT}/model/${NAME}.score
+done
+
