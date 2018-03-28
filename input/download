@@ -1,0 +1,20 @@
+#!/bin/bash
+#USAGE:
+# ./download "asia cancer sachs" data
+
+NETLIST=""
+MODELDIR="./"
+
+if [ "$1" != "" ]; then
+   NETLIST=$1
+fi
+if [ "$2" != "" ]; then
+   MODELDIR=$2
+   mkdir ${MODELDIR} -p
+fi
+
+for NET in $NETLIST; do
+   curl -O http://www.bnlearn.com/bnrepository/${NET}/${NET}.bif.gz
+   gunzip ${NET}.bif.gz
+   mv ${NET}.bif ${MODELDIR}
+done
