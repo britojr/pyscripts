@@ -1,0 +1,46 @@
+#!/bin/bash
+# -----------------------------------------------------------------------------
+# USAGE:
+# ./libra-exactinf <in-dir> <alg> <out-dir>
+# alg: cl, bnlearn, acbn, acmn, idspn, mtlearn
+# -----------------------------------------------------------------------------
+
+ROOT="repo"
+ALG="cl"
+OUT="./"
+
+if [ "$1" != "" ]; then
+   ROOT=$1
+fi
+if [ "$2" != "" ]; then
+   ALG=$2
+fi
+if [ "$3" != "" ]; then
+   OUT=$3
+   mkdir ${OUT} -p
+fi
+
+for NET in ${ROOT}/*.bif; do
+   NAME=$(basename "$NET")
+   NAME=${NAME%.bif}
+
+   case "$ALG" in
+      "cl" | "bnlearn")
+         echo "libra acve -m ${OUT}/${NAME}-${ALG}.bn -o ${OUT}/${NAME}-${ALG}.ac"
+               libra acve -m ${OUT}/${NAME}-${ALG}.bn -o ${OUT}/${NAME}-${ALG}.ac
+         libra fstats -i ${OUT}/${NAME}-${ALG}.ac &> ${OUT}/${NAME}-${ALG}.outac
+
+         echo "libra acquery -m ${OUT}/${NAME}-${ALG}.ac -q ${ROOT}/query/${NAME}.q -ev ${ROOT}/query/${NAME}.ev &> ${OUT}/${NAME}-${ALG}.exact"
+               libra acquery -m ${OUT}/${NAME}-${ALG}.ac -q ${ROOT}/query/${NAME}.q -ev ${ROOT}/query/${NAME}.ev &> ${OUT}/${NAME}-${ALG}.exact
+      ;;
+      "acbn" | "acmn")
+         echo "libra acquery -m ${OUT}/${NAME}-${ALG}.ac -q ${ROOT}/query/${NAME}.q -ev ${ROOT}/query/${NAME}.ev &> ${OUT}/${NAME}-${ALG}.exact"
+               libra acquery -m ${OUT}/${NAME}-${ALG}.ac -q ${ROOT}/query/${NAME}.q -ev ${ROOT}/query/${NAME}.ev &> ${OUT}/${NAME}-${ALG}.exact
+      ;;
+      "idspn" | "mtlearn")
+         echo "libra spquery -m ${OUT}/${NAME}-${ALG}.spn -q ${ROOT}/query/${NAME}.q -ev ${ROOT}/query/${NAME}.ev &> ${OUT}/${NAME}-${ALG}.exact"
+               libra spquery -m ${OUT}/${NAME}-${ALG}.spn -q ${ROOT}/query/${NAME}.q -ev ${ROOT}/query/${NAME}.ev &> ${OUT}/${NAME}-${ALG}.exact
+      ;;
+   esac
+done
+

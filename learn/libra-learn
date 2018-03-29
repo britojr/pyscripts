@@ -1,7 +1,8 @@
 #!/bin/bash
 # -----------------------------------------------------------------------------
 # USAGE:
-# ./libra-learn repo cl out
+# ./libra-learn <in-dir> <alg> <out-dir>
+# alg: cl, bnlearn, acbn, acmn, idspn, mtlearn
 # -----------------------------------------------------------------------------
 
 ROOT="repo"
