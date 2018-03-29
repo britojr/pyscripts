@@ -1,0 +1,30 @@
+#!/bin/bash
+# -----------------------------------------------------------------------------
+# USAGE:
+# ./lsdd-learn <in-dir> <out-dir> <alg-path>
+# -----------------------------------------------------------------------------
+
+ROOT="repo"
+OUT="./"
+LPATH="${HOME}/Code/PGML/LearnSDD"
+
+if [ "$1" != "" ]; then
+   ROOT=$1
+fi
+if [ "$2" != "" ]; then
+   OUT=$2
+   mkdir ${OUT} -p
+fi
+if [ "$3" != "" ]; then
+   LPATH=$3
+fi
+
+for NET in ${ROOT}/*.bif; do
+   NAME=$(basename "$NET")
+   NAME=${NAME%.bif}
+
+   mkdir ${OUT}/${NAME}/ -p
+   echo "java -jar ${LPATH}/LearnSDD.jar learn ${ROOT}/data/${NAME}.train ${ROOT}/data/${NAME}.valid ${OUT}/${NAME}/"
+         java -jar ${LPATH}/LearnSDD.jar learn ${ROOT}/data/${NAME}.train ${ROOT}/data/${NAME}.valid ${OUT}/${NAME}/
+done
+

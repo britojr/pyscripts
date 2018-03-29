@@ -1,11 +1,12 @@
 #!/bin/bash
 # -----------------------------------------------------------------------------
 # USAGE:
-# ./gob-learn <in-dir> <out-dir>
+# ./gob-learn <in-dir> <out-dir> <alg-path>
 # -----------------------------------------------------------------------------
 
 ROOT="repo"
 OUT="./"
+LPATH="${HOME}/Code/PGML/gobnilp163/bin"
 
 if [ "$1" != "" ]; then
    ROOT=$1
@@ -14,8 +15,10 @@ if [ "$2" != "" ]; then
    OUT=$2
    mkdir ${OUT} -p
 fi
+if [ "$3" != "" ]; then
+   LPATH=$3
+fi
 
-GOBPATH="${HOME}/Code/PGML/gobnilp163"
 SETFILE="
 # INPUT: parameters to define a CSV format
 gobnilp/scoring/names = FALSE
@@ -39,7 +42,7 @@ for NET in ${ROOT}/*.bif; do
    NAME=$(basename "$NET")
    NAME=${NAME%.bif}
 
-   echo "${GOBPATH}/bin/gobnilp -g=${OUT}/settings.set -f=dat ${ROOT}/data/${NAME}.train"
-         ${GOBPATH}/bin/gobnilp -g=${OUT}/settings.set -f=dat ${ROOT}/data/${NAME}.train
+   echo "${LPATH}/gobnilp -g=${OUT}/settings.set -f=dat ${ROOT}/data/${NAME}.train"
+         ${LPATH}/gobnilp -g=${OUT}/settings.set -f=dat ${ROOT}/data/${NAME}.train
 done
 
