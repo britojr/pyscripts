@@ -1,0 +1,38 @@
+#!/bin/bash
+# -----------------------------------------------------------------------------
+# USAGE:
+# ./gob-learn <in-dir> <out-dir>
+# -----------------------------------------------------------------------------
+
+ROOT="repo"
+OUT="./"
+
+if [ "$1" != "" ]; then
+   ROOT=$1
+fi
+if [ "$2" != "" ]; then
+   OUT=$2
+   mkdir ${OUT} -p
+fi
+
+GOBPATH="${HOME}/Code/PGML/gobnilp163"
+SETFILE="
+# INPUT: parameters to define a CSV format
+gobnilp/scoring/names = FALSE
+gobnilp/scoring/arities = FALSE
+gobnilp/mergedelimiters = FALSE
+gobnilp/delimiter = \",\"
+# OUTPUT
+gobnilp/outputfile/solution = \"${OUT}/<probname>.solution\"
+gobnilp/outputfile/scoreandtime = \"${OUT}/<probname>.times\"
+"
+echo "$SETFILE" > ${OUT}/settings.set
+
+for NET in ${ROOT}/*.bif; do
+   NAME=$(basename "$NET")
+   NAME=${NAME%.bif}
+
+   echo "${GOBPATH}/bin/gobnilp -g=${OUT}/settings.set -f=dat ${ROOT}/data/${NAME}.train"
+         ${GOBPATH}/bin/gobnilp -g=${OUT}/settings.set -f=dat ${ROOT}/data/${NAME}.train
+done
+
