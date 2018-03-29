@@ -20,6 +20,8 @@ if [ "$3" != "" ]; then
    mkdir ${OUT} -p
 fi
 
+CMD="acquery"
+EXT="ac"
 for NET in ${ROOT}/*.bif; do
    NAME=$(basename "$NET")
    NAME=${NAME%.bif}
@@ -29,18 +31,13 @@ for NET in ${ROOT}/*.bif; do
          echo "libra acve -m ${OUT}/${NAME}-${ALG}.bn -o ${OUT}/${NAME}-${ALG}.ac"
                libra acve -m ${OUT}/${NAME}-${ALG}.bn -o ${OUT}/${NAME}-${ALG}.ac
          libra fstats -i ${OUT}/${NAME}-${ALG}.ac &> ${OUT}/${NAME}-${ALG}.outac
-
-         echo "libra acquery -m ${OUT}/${NAME}-${ALG}.ac -q ${ROOT}/query/${NAME}.q -ev ${ROOT}/query/${NAME}.ev &> ${OUT}/${NAME}-${ALG}.exact"
-               libra acquery -m ${OUT}/${NAME}-${ALG}.ac -q ${ROOT}/query/${NAME}.q -ev ${ROOT}/query/${NAME}.ev &> ${OUT}/${NAME}-${ALG}.exact
-      ;;
-      "acbn" | "acmn")
-         echo "libra acquery -m ${OUT}/${NAME}-${ALG}.ac -q ${ROOT}/query/${NAME}.q -ev ${ROOT}/query/${NAME}.ev &> ${OUT}/${NAME}-${ALG}.exact"
-               libra acquery -m ${OUT}/${NAME}-${ALG}.ac -q ${ROOT}/query/${NAME}.q -ev ${ROOT}/query/${NAME}.ev &> ${OUT}/${NAME}-${ALG}.exact
       ;;
       "idspn" | "mtlearn")
-         echo "libra spquery -m ${OUT}/${NAME}-${ALG}.spn -q ${ROOT}/query/${NAME}.q -ev ${ROOT}/query/${NAME}.ev &> ${OUT}/${NAME}-${ALG}.exact"
-               libra spquery -m ${OUT}/${NAME}-${ALG}.spn -q ${ROOT}/query/${NAME}.q -ev ${ROOT}/query/${NAME}.ev &> ${OUT}/${NAME}-${ALG}.exact
+         CMD="spquery"
+         EXT="spn"
       ;;
    esac
+   echo "libra ${CMD} -m ${OUT}/${NAME}-${ALG}.${EXT} -q ${ROOT}/query/${NAME}.q -ev ${ROOT}/query/${NAME}.ev &> ${OUT}/${NAME}-${ALG}.exact"
+         libra ${CMD} -m ${OUT}/${NAME}-${ALG}.${EXT} -q ${ROOT}/query/${NAME}.q -ev ${ROOT}/query/${NAME}.ev &> ${OUT}/${NAME}-${ALG}.exact
 done
 
