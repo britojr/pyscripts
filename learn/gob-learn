@@ -25,6 +25,13 @@ gobnilp/delimiter = \",\"
 # OUTPUT
 gobnilp/outputfile/solution = \"${OUT}/<probname>.solution\"
 gobnilp/outputfile/scoreandtime = \"${OUT}/<probname>.times\"
+
+# SPEED UP (see Chapter 5)
+gobnilp/scoring/palim = 5
+#constraints/dagcluster/sepafreq = 5
+#constraints/dagcluster/consenfolpsubiptimelimit = 10
+#constraints/dagcluster/conssepalpsubiptimelimit = 5
+#constraints/dagcluster/conssepasolsubiptimelimit = 5
 "
 echo "$SETFILE" > ${OUT}/settings.set
 
