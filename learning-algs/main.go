@@ -106,7 +106,7 @@ func commandLibra(inpDir, outDir, algExec, algSub, name string, timeOut int) {
 		fallthrough
 	case AlgSubACBN, AlgSubACMN:
 		cmdstr = fmt.Sprintf(
-			"%s %s -i %s.train -o %s.%s %s &> %s.out", algExec, algSub, dataFile, outFile, ext, arg, outFile,
+			"%s %s -i %s.train -o %s.%s %s -log %s.out", algExec, algSub, dataFile, outFile, ext, arg, outFile,
 		)
 		fmt.Println(cmdstr)
 		_, err := execCmdTimeout(cmdstr, timeOut)
@@ -114,27 +114,24 @@ func commandLibra(inpDir, outDir, algExec, algSub, name string, timeOut int) {
 			fmt.Printf("command errored: %v\n", err)
 		}
 	case AlgSubSPN, AlgSubMT:
-		// libra ${ALG} -i ${ROOT}/data/${NAME}.train -o ${OUT}/${NAME}-${ALG}.spn -seed ${SEED} &> ${OUT}/${NAME}-${ALG}.out
 		seed := 0
 		cmdstr = fmt.Sprintf(
-			"%s %s -i %s.train -o %s.spn -seed %v &> %s.out", algExec, algSub, dataFile, outFile, seed, outFile,
+			"%s %s -i %s.train -o %s.spn -seed %v -log %s.out", algExec, algSub, dataFile, outFile, seed, outFile,
 		)
 		fmt.Println(cmdstr)
 		_, err := execCmdTimeout(cmdstr, timeOut)
 		if err != nil && err != ErrTimeout {
 			fmt.Printf("command errored: %v\n", err)
 		}
-		// libra spn2ac -m ${OUT}/${NAME}-${ALG}.spn -o ${OUT}/${NAME}-${ALG}.ac &>> ${OUT}/${NAME}-${ALG}.out
 		cmdstr = fmt.Sprintf(
-			"%s spn2ac -m %s.spn -o %s.ac &>> %s.out", algExec, outFile, outFile, outFile,
+			"%s spn2ac -m %s.spn -o %s.ac", algExec, outFile, outFile,
 		)
 		fmt.Println(cmdstr)
 		_, err = execCmd(cmdstr)
 		errchk.Check(err, "")
 	}
-	// libra mscore -m ${OUT}/${NAME}-${ALG}.${EXT} -i ${ROOT}/data/${NAME}.test &> ${OUT}/${NAME}-${ALG}.score
 	cmdstr = fmt.Sprintf(
-		"%s mscore -m %s.%s -i %s.test &> %s.score", algExec, outFile, ext, dataFile, outFile,
+		"%s mscore -m %s.%s -i %s.test -log %s.score", algExec, outFile, ext, dataFile, outFile,
 	)
 	fmt.Println(cmdstr)
 	_, err := execCmd(cmdstr)
