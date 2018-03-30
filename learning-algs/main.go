@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -169,14 +169,13 @@ func commandGobnilp(inpDir, outDir, algExec, parFile, name string, timeOut int) 
 }
 
 func createGobFile(fname, outDir, dname string) string {
-	data, err := ioutil.ReadFile(fname)
+	r := ioutl.OpenFile(fname)
+	w := ioutl.CreateFile(outDir + dname + ".set")
+	_, err := io.Copy(w, r)
 	errchk.Check(err, "")
-	content := string(data) +
-		fmt.Sprintf("\n\ngobnilp/outputfile/solution = \"%s/<probname>.solution\"", outDir) +
-		fmt.Sprintf("\ngobnilp/outputfile/scoreandtime = \"%s/<probname>.times\"\n", outDir)
-	f := ioutl.CreateFile(outDir + dname + ".set")
-	fmt.Fprintf(f, content)
-	return f.Name()
+	fmt.Fprintf(w, "\ngobnilp/outputfile/solution = \"%s/<probname>.solution\"", outDir)
+	fmt.Fprintf(w, "\ngobnilp/outputfile/scoreandtime = \"%s/<probname>.times\"\n", outDir)
+	return w.Name()
 }
 
 func execCmdTimeout(cmdstr string, t int) ([]byte, error) {
