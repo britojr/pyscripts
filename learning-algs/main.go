@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
@@ -20,6 +21,7 @@ const (
 	AlgLibra   = "libra"
 	AlgGobnilp = "gobnilp"
 	AlgLSDD    = "LearnSDD"
+	AlgBI      = "BI"
 )
 
 // suported subcommands
@@ -86,6 +88,8 @@ func main() {
 				os.Exit(1)
 			}
 			commandGobnilp(inpDir, outDir, algExec, parFile, name, timeOut)
+		case strings.Contains(algExec, AlgBI):
+			commandBI(inpDir, outDir, algExec, name, timeOut)
 		default:
 			fmt.Printf("alg %s not supported\n", algExec)
 			os.Exit(1)
@@ -157,6 +161,39 @@ func createGobFile(fname, outDir, dname string) string {
 	return w.Name()
 }
 
+func commandBI(inpDir, outDir, algExec, name string, timeOut int) {
+	soluDir := outDir + "/" + name
+	_, err := execCmd("mkdir " + soluDir + " -p")
+	errchk.Check(err, "")
+	dataFile := inpDir + "/data/" + name
+	// unlike the others, BI files must have a header and specific extension
+	trainFile, testFile := dataFile+"-train.csv", dataFile+"-test.csv"
+	copyWithHeader(trainFile, dataFile+".train")
+	copyWithHeader(testFile, dataFile+".test")
+	defer os.Remove(trainFile)
+	defer os.Remove(testFile)
+
+	cmdstr := fmt.Sprintf(
+		"java -Xmx2G -cp %s clustering/LearnAndTest %s %s %s", algExec, trainFile, testFile, soluDir,
+	)
+	runCmd(cmdstr, timeOut)
+}
+
+func copyWithHeader(dst, src string) {
+	line := ""
+	r := ioutl.OpenFile(src)
+	fmt.Fscanln(r, &line)
+	hdr := make([]string, len(strings.Split(line, ",")))
+	for i := range hdr {
+		hdr[i] = "x" + strconv.Itoa(i)
+	}
+	w := ioutl.CreateFile(dst)
+	fmt.Fprintln(w, strings.Join(hdr, ","))
+	fmt.Fprintln(w, line)
+	_, err := io.Copy(w, r)
+	errchk.Check(err, "")
+}
+
 func runCmd(cmdstr string, timeOut int) {
 	fmt.Println(cmdstr)
 	out, err := execCmdTimeout(cmdstr, timeOut)
@@ -165,7 +202,7 @@ func runCmd(cmdstr string, timeOut int) {
 			fmt.Println(err)
 		} else {
 			fmt.Printf("command errored: %v\n", err)
-			fmt.Println(out)
+			fmt.Println(string(out))
 		}
 	}
 }
@@ -179,7 +216,7 @@ func execCmdTimeout(cmdstr string, t int) ([]byte, error) {
 
 	args := strings.Fields(cmdstr)
 	cmd := exec.CommandContext(ctx, args[0], args[1:]...)
-	out, err := cmd.Output()
+	out, err := cmd.CombinedOutput()
 
 	if ctx.Err() == context.DeadlineExceeded {
 		return out, ErrTimeout
@@ -189,6 +226,6 @@ func execCmdTimeout(cmdstr string, t int) ([]byte, error) {
 func execCmd(cmdstr string) ([]byte, error) {
 	args := strings.Fields(cmdstr)
 	cmd := exec.Command(args[0], args[1:]...)
-	out, err := cmd.Output()
+	out, err := cmd.CombinedOutput()
 	return out, err
 }
