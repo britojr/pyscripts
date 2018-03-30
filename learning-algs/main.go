@@ -179,6 +179,42 @@ func commandBI(inpDir, outDir, algExec, name string, timeOut int) {
 	runCmd(cmdstr, timeOut)
 }
 
+func commandEAST(inpDir, outDir, algExec, name string, timeOut int) {
+	// 	Arguments:
+	// 	Setting for screening stage:
+	// 		args[0]: Number of starting points of local EM
+	// 		args[1]: Number of continued steps of local EM
+	// 		args[2]: Convergence threshold in loglikelihood
+	// 	Setting for evaluation stage:
+	// 		args[3]: Maximum number of candidate models to enter evaluation stage
+	// 		args[4]: Number of starting points of local EM
+	// 		args[5]: Number of continued steps of local EM
+	// 		args[6]: Convergence threshold in loglikelihood
+	// 	Setting for parameter optimization:
+	// 		args[7]: Number of starting points of full EM
+	// 		args[8]: Number of maximum steps of full EM
+	// 		args[9]: Convergence threshold in loglikelihood
+	// 	General setting:
+	// 		args[10]: Path to data file (see 5k.data for format)
+	// 		args[11]: Path to ouput directory
+	// 		args[12]: Path to initial model (optional)
+	// 		args[13]: Conduct adjustment for initial model first or not (true/false, optional)
+	//
+	// Example: $ java -Xmx1024M -cp east.jar EAST 4 10 0.1 50 16 20 0.1 32 100 0.1 5k.data . >& ./log.txt
+	args := "4 10 0.1 50 16 20 0.1 32 100 0.1"
+
+	// TODO: needs to convert to EAST format
+	soluDir := outDir + "/" + name
+	_, err := execCmd("mkdir " + soluDir + " -p")
+	errchk.Check(err, "")
+	dataFile := inpDir + "/data/" + name
+
+	cmdstr := fmt.Sprintf(
+		"java -Xmx2G -cp %s EAST %s %s %s", algExec, args, dataFile, soluDir,
+	)
+	runCmd(cmdstr, timeOut)
+}
+
 func copyWithHeader(dst, src string) {
 	line := ""
 	r := ioutl.OpenFile(src)
