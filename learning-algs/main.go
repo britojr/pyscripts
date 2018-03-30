@@ -59,7 +59,7 @@ func main() {
 	}
 	// remove prints
 	fmt.Println("DIRS:", inpDir, outDir)
-	fmt.Println("ALGS:", algSub, algExec)
+	fmt.Println("ALGS:", algExec, algSub)
 	fmt.Println("TIME:", timeOut)
 
 	ds, err := filepath.Glob(inpDir + "/data/*.train")
@@ -108,26 +108,18 @@ func commandLibra(inpDir, outDir, algExec, algSub, name string, timeOut int) {
 		cmdstr = fmt.Sprintf(
 			"%s %s -i %s.train -o %s.%s %s -log %s.out", algExec, algSub, dataFile, outFile, ext, arg, outFile,
 		)
-		fmt.Println(cmdstr)
-		_, err := execCmdTimeout(cmdstr, timeOut)
-		if err != nil && err != ErrTimeout {
-			fmt.Printf("command errored: %v\n", err)
-		}
+		runCmd(cmdstr, timeOut)
 	case AlgSubSPN, AlgSubMT:
 		seed := 0
 		cmdstr = fmt.Sprintf(
 			"%s %s -i %s.train -o %s.spn -seed %v -log %s.out", algExec, algSub, dataFile, outFile, seed, outFile,
 		)
-		fmt.Println(cmdstr)
-		_, err := execCmdTimeout(cmdstr, timeOut)
-		if err != nil && err != ErrTimeout {
-			fmt.Printf("command errored: %v\n", err)
-		}
+		runCmd(cmdstr, timeOut)
 		cmdstr = fmt.Sprintf(
 			"%s spn2ac -m %s.spn -o %s.ac", algExec, outFile, outFile,
 		)
 		fmt.Println(cmdstr)
-		_, err = execCmd(cmdstr)
+		_, err := execCmd(cmdstr)
 		errchk.Check(err, "")
 	}
 	cmdstr = fmt.Sprintf(
@@ -146,23 +138,13 @@ func commandLSDD(inpDir, outDir, algExec, name string, timeOut int) {
 	cmdstr := fmt.Sprintf(
 		"java -jar %s learn %s.train %s.valid %s", algExec, dataFile, dataFile, soluDir,
 	)
-
-	fmt.Println(cmdstr)
-	_, err = execCmdTimeout(cmdstr, timeOut)
-	if err != nil && err != ErrTimeout {
-		fmt.Printf("command errored: %v\n", err)
-	}
+	runCmd(cmdstr, timeOut)
 }
 
 func commandGobnilp(inpDir, outDir, algExec, parFile, name string, timeOut int) {
 	parms := createGobFile(parFile, outDir, name)
 	cmdstr := fmt.Sprintf("%s -g=%s -f=dat %s/data/%s.train", algExec, parms, inpDir, name)
-
-	fmt.Println(cmdstr)
-	_, err := execCmdTimeout(cmdstr, timeOut)
-	if err != nil && err != ErrTimeout {
-		fmt.Printf("command errored: %v\n", err)
-	}
+	runCmd(cmdstr, timeOut)
 }
 
 func createGobFile(fname, outDir, dname string) string {
@@ -173,6 +155,15 @@ func createGobFile(fname, outDir, dname string) string {
 	fmt.Fprintf(w, "\ngobnilp/outputfile/solution = \"%s/<probname>.solution\"", outDir)
 	fmt.Fprintf(w, "\ngobnilp/outputfile/scoreandtime = \"%s/<probname>.times\"\n", outDir)
 	return w.Name()
+}
+
+func runCmd(cmdstr string, timeOut int) {
+	fmt.Println(cmdstr)
+	out, err := execCmdTimeout(cmdstr, timeOut)
+	if err != nil && err != ErrTimeout {
+		fmt.Printf("command errored: %v\n", err)
+		fmt.Println(out)
+	}
 }
 
 func execCmdTimeout(cmdstr string, t int) ([]byte, error) {
