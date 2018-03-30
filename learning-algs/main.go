@@ -160,9 +160,13 @@ func createGobFile(fname, outDir, dname string) string {
 func runCmd(cmdstr string, timeOut int) {
 	fmt.Println(cmdstr)
 	out, err := execCmdTimeout(cmdstr, timeOut)
-	if err != nil && err != ErrTimeout {
-		fmt.Printf("command errored: %v\n", err)
-		fmt.Println(out)
+	if err != nil {
+		if err == ErrTimeout {
+			fmt.Println(err)
+		} else {
+			fmt.Printf("command errored: %v\n", err)
+			fmt.Println(out)
+		}
 	}
 }
 
