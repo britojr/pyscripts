@@ -1,23 +1,23 @@
 #!/bin/bash
 # -----------------------------------------------------------------------------
 # USAGE:
-# ./libra-learn <in-dir> <alg> <out-dir>
+# ./libra-learn <in-dir> <out-dir> <alg>
 # alg: cl, bnlearn, acbn, acmn, idspn, mtlearn
 # -----------------------------------------------------------------------------
 
 ROOT="repo"
-ALG="cl"
 OUT="./"
+ALG="cl"
 
 if [ "$1" != "" ]; then
    ROOT=$1
 fi
 if [ "$2" != "" ]; then
-   ALG=$2
+   OUT=$2
+   mkdir ${OUT} -p
 fi
 if [ "$3" != "" ]; then
-   OUT=$3
-   mkdir ${OUT} -p
+   ALG=$3
 fi
 
 EXT="ac"
