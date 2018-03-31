@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/britojr/scripts/cmd"
 	"github.com/britojr/utl/errchk"
@@ -60,38 +59,26 @@ func main() {
 }
 
 func inferLibra(inpDir, outDir, algExec, algSub, name string, timeOut int) {
-	dataFile := inpDir + "/data/" + name
-	outFile := outDir + "/" + name + "-" + algSub
-	ext := "ac"
-	arg := ""
 	cmdstr := ""
+	ext := "ac"
+	infcmd := "acquery"
+	netFile := outDir + "/" + name + "-" + algSub
+	queryFile := inpDir + "/query/" + name
 	switch algSub {
 	case cmd.AlgSubCl, cmd.AlgSubBN:
-		ext = "bn"
-		arg = "-prior 1"
-		fallthrough
-	case cmd.AlgSubACBN, cmd.AlgSubACMN:
+		// libra acve -m ${OUT}/${NAME}-${ALG}.bn -o ${OUT}/${NAME}-${ALG}.ac
+		// libra fstats -i ${OUT}/${NAME}-${ALG}.ac &> ${OUT}/${NAME}-${ALG}.outac
 		cmdstr = fmt.Sprintf(
-			"%s %s -i %s.train -o %s.%s %s -log %s.out", algExec, algSub, dataFile, outFile, ext, arg, outFile,
+			"%s acve -m %s.bn -o %s.ac", algExec, netFile, netFile,
 		)
 		cmd.RunCmd(cmdstr, timeOut)
 	case cmd.AlgSubSPN, cmd.AlgSubMT:
-		seed := time.Now().UnixNano()
-		cmdstr = fmt.Sprintf(
-			"%s %s -i %s.train -o %s.spn -seed %v -log %s.out", algExec, algSub, dataFile, outFile, seed, outFile,
-		)
-		cmd.RunCmd(cmdstr, timeOut)
-		cmdstr = fmt.Sprintf(
-			"%s spn2ac -m %s.spn -o %s.ac", algExec, outFile, outFile,
-		)
-		fmt.Println(cmdstr)
-		_, err := cmd.ExecCmd(cmdstr)
-		errchk.Check(err, "")
+		ext = "spn"
+		infcmd = "spquery"
 	}
+	// libra ${CMD} -m ${OUT}/${NAME}-${ALG}.${EXT} -q ${ROOT}/query/${NAME}.q -ev ${ROOT}/query/${NAME}.ev &> ${OUT}/${NAME}-${ALG}.exact
 	cmdstr = fmt.Sprintf(
-		"%s mscore -m %s.%s -i %s.test -log %s.score", algExec, outFile, ext, dataFile, outFile,
+		"%s %s -m %s.%s -q %s.q -ev %s.ev -log %s.exact", algExec, infcmd, netFile, ext, queryFile, queryFile, netFile,
 	)
-	fmt.Println(cmdstr)
-	_, err := cmd.ExecCmd(cmdstr)
-	errchk.Check(err, "")
+	cmd.RunCmd(cmdstr, timeOut)
 }
