@@ -91,7 +91,7 @@ func commandLibra(inpDir, outDir, algExec, algSub, name string, timeOut int) {
 	case cmd.AlgSubSPN, cmd.AlgSubMT:
 		seed := time.Now().UnixNano()
 		cmdstr = fmt.Sprintf(
-			"%s %s -i %s.train -o %s.spn -seed %v -log %s.out", algExec, algSub, dataFile, outFile, seed, outFile,
+			"%s %s -i %s.train -o %s.spn -seed %v -log %s.out -f", algExec, algSub, dataFile, outFile, seed, outFile,
 		)
 		cmd.RunCmd(cmdstr, timeOut)
 		cmdstr = fmt.Sprintf(
