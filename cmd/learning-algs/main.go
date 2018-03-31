@@ -98,15 +98,15 @@ func commandLibra(inpDir, outDir, algExec, algSub, name string, timeOut int) {
 			"%s spn2ac -m %s.spn -o %s.ac", algExec, outFile, outFile,
 		)
 		fmt.Println(cmdstr)
-		_, err := cmd.ExecCmd(cmdstr)
-		errchk.Check(err, "")
+		out, err := cmd.ExecCmd(cmdstr)
+		errchk.Check(err, string(out))
 	}
 	cmdstr = fmt.Sprintf(
 		"%s mscore -m %s.%s -i %s.test -log %s.score", algExec, outFile, ext, dataFile, outFile,
 	)
 	fmt.Println(cmdstr)
-	_, err := cmd.ExecCmd(cmdstr)
-	errchk.Check(err, "")
+	out, err := cmd.ExecCmd(cmdstr)
+	errchk.Check(err, string(out))
 }
 
 func commandLSDD(inpDir, outDir, algExec, name string, timeOut int) {
