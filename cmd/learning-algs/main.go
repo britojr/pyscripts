@@ -41,8 +41,7 @@ func main() {
 
 	ds, err := filepath.Glob(inpDir + "/data/*.train")
 	errchk.Check(err, "")
-	_, err = cmd.ExecCmd("mkdir " + outDir + " -p")
-	errchk.Check(err, "")
+	cmd.RunCmd("mkdir "+outDir+" -p", 0)
 
 	for _, d := range ds {
 		name := strings.TrimSuffix(filepath.Base(d), filepath.Ext(filepath.Base(d)))
@@ -97,22 +96,17 @@ func commandLibra(inpDir, outDir, algExec, algSub, name string, timeOut int) {
 		cmdstr = fmt.Sprintf(
 			"%s spn2ac -m %s.spn -o %s.ac", algExec, outFile, outFile,
 		)
-		fmt.Println(cmdstr)
-		out, err := cmd.ExecCmd(cmdstr)
-		errchk.Check(err, string(out))
+		cmd.RunCmd(cmdstr, 0)
 	}
 	cmdstr = fmt.Sprintf(
 		"%s mscore -m %s.%s -i %s.test -log %s.score", algExec, outFile, ext, dataFile, outFile,
 	)
-	fmt.Println(cmdstr)
-	out, err := cmd.ExecCmd(cmdstr)
-	errchk.Check(err, string(out))
+	cmd.RunCmd(cmdstr, 0)
 }
 
 func commandLSDD(inpDir, outDir, algExec, name string, timeOut int) {
 	soluDir := outDir + "/" + name
-	_, err := cmd.ExecCmd("mkdir " + soluDir + " -p")
-	errchk.Check(err, "")
+	cmd.RunCmd("mkdir "+soluDir+" -p", 0)
 	dataFile := inpDir + "/data/" + name
 	cmdstr := fmt.Sprintf(
 		"java -jar %s learn %s.train %s.valid %s", algExec, dataFile, dataFile, soluDir,
@@ -138,8 +132,7 @@ func createGobFile(fname, outDir, dname string) string {
 
 func commandBI(inpDir, outDir, algExec, name string, timeOut int) {
 	soluDir := outDir + "/" + name
-	_, err := cmd.ExecCmd("mkdir " + soluDir + " -p")
-	errchk.Check(err, "")
+	cmd.RunCmd("mkdir "+soluDir+" -p", 0)
 	dataFile := inpDir + "/data/" + name
 	// unlike the others, BI files must have a header and specific extension
 	trainFile, testFile := dataFile+"-train.csv", dataFile+"-test.csv"
@@ -180,8 +173,7 @@ func commandEAST(inpDir, outDir, algExec, name string, timeOut int) {
 
 	// TODO: needs to convert to EAST format
 	soluDir := outDir + "/" + name
-	_, err := cmd.ExecCmd("mkdir " + soluDir + " -p")
-	errchk.Check(err, "")
+	cmd.RunCmd("mkdir "+soluDir+" -p", 0)
 	dataFile := inpDir + "/data/" + name
 
 	cmdstr := fmt.Sprintf(
