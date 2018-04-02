@@ -39,7 +39,7 @@ func main() {
 	fmt.Println("ALGS:", algExec, algSub)
 	fmt.Println("TIME:", timeOut)
 
-	ds, err := filepath.Glob(inpDir + "/data/*.train")
+	ds, err := filepath.Glob(inpDir + "/*.bif")
 	errchk.Check(err, "")
 	cmd.RunCmd("mkdir "+outDir+" -p", 0)
 
