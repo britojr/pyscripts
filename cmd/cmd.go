@@ -50,6 +50,12 @@ func ExecCmdTimeout(cmdstr string, t int) ([]byte, error) {
 	if t <= 0 {
 		return ExecCmd(cmdstr)
 	}
+	return ExecCmd(fmt.Sprintf("timeout %v %s", t, cmdstr))
+}
+func ExecCmdTimeout1(cmdstr string, t int) ([]byte, error) {
+	if t <= 0 {
+		return ExecCmd(cmdstr)
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(t)*time.Second)
 	defer cancel()
 
