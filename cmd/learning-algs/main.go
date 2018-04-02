@@ -77,31 +77,41 @@ func commandLibra(inpDir, outDir, algExec, algSub, name string, timeOut int) {
 	ext := "ac"
 	arg := ""
 	cmdstr := ""
+	var err error
+	cmd.RunCmd(fmt.Sprintf("rm -rf %s.out", outFile), 0)
+	cmd.RunCmd(fmt.Sprintf("rm -rf %s.score", outFile), 0)
 	switch algSub {
 	case cmd.AlgSubCl, cmd.AlgSubBN:
 		ext = "bn"
 		arg = "-prior 1"
 		fallthrough
 	case cmd.AlgSubACBN, cmd.AlgSubACMN:
+		cmd.RunCmd(fmt.Sprintf("rm -rf %s.%s", outFile, ext), 0)
 		cmdstr = fmt.Sprintf(
 			"%s %s -i %s.train -o %s.%s %s -log %s.out", algExec, algSub, dataFile, outFile, ext, arg, outFile,
 		)
-		cmd.RunCmd(cmdstr, timeOut)
+		_, err = cmd.RunCmd(cmdstr, timeOut)
 	case cmd.AlgSubSPN, cmd.AlgSubMT:
+		cmd.RunCmd(fmt.Sprintf("rm -rf %s.spn", outFile), 0)
+		cmd.RunCmd(fmt.Sprintf("rm -rf %s.ac", outFile), 0)
 		seed := time.Now().UnixNano()
 		cmdstr = fmt.Sprintf(
-			"%s %s -i %s.train -o %s.spn -seed %v -log %s.out -f", algExec, algSub, dataFile, outFile, seed, outFile,
+			"%s %s -i %s.train -o %s.spn -seed %v -log %s.out", algExec, algSub, dataFile, outFile, seed, outFile,
 		)
-		cmd.RunCmd(cmdstr, timeOut)
+		_, err = cmd.RunCmd(cmdstr, timeOut)
+		if err == nil {
+			cmdstr = fmt.Sprintf(
+				"%s spn2ac -m %s.spn -o %s.ac", algExec, outFile, outFile,
+			)
+			_, err = cmd.RunCmd(cmdstr, 0)
+		}
+	}
+	if err == nil {
 		cmdstr = fmt.Sprintf(
-			"%s spn2ac -m %s.spn -o %s.ac", algExec, outFile, outFile,
+			"%s mscore -m %s.%s -i %s.test -log %s.score", algExec, outFile, ext, dataFile, outFile,
 		)
 		cmd.RunCmd(cmdstr, 0)
 	}
-	cmdstr = fmt.Sprintf(
-		"%s mscore -m %s.%s -i %s.test -log %s.score", algExec, outFile, ext, dataFile, outFile,
-	)
-	cmd.RunCmd(cmdstr, 0)
 }
 
 func commandLSDD(inpDir, outDir, algExec, name string, timeOut int) {
