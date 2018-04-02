@@ -45,6 +45,7 @@ func main() {
 
 	for _, d := range ds {
 		name := strings.TrimSuffix(filepath.Base(d), filepath.Ext(filepath.Base(d)))
+		createSchema(inpDir, name)
 		switch {
 		case strings.Contains(algExec, cmd.AlgLibra):
 			if len(algSub) == 0 {
@@ -71,6 +72,23 @@ func main() {
 	}
 }
 
+func createSchema(inpDir, name string) {
+	dataFile := inpDir + "/data/" + name
+	schema := "Schema: "
+	cmdstr := fmt.Sprintf("libra fstats -i %s/%s.bif", inpDir, name)
+	out, err := cmd.RunCmd(cmdstr, 0)
+	errchk.Check(err, string(out))
+	var hdr string
+	for _, line := range strings.Split(strings.TrimSuffix(string(out), "\n"), "\n") {
+		if len(line) > len(schema) && line[:len(schema)] == schema {
+			hdr = line[len(schema):]
+		}
+	}
+	f := ioutl.CreateFile(dataFile + ".schema")
+	fmt.Fprintf(f, "%s\n", hdr)
+	f.Close()
+}
+
 func commandLibra(inpDir, outDir, algExec, algSub, name string, timeOut int) {
 	dataFile := inpDir + "/data/" + name
 	outFile := outDir + "/" + name + "-" + algSub
@@ -88,7 +106,7 @@ func commandLibra(inpDir, outDir, algExec, algSub, name string, timeOut int) {
 	case cmd.AlgSubACBN, cmd.AlgSubACMN:
 		cmd.RunCmd(fmt.Sprintf("rm -rf %s.%s", outFile, ext), 0)
 		cmdstr = fmt.Sprintf(
-			"%s %s -i %s.train -o %s.%s %s -log %s.out", algExec, algSub, dataFile, outFile, ext, arg, outFile,
+			"%s %s -i %s.train -o %s.%s %s -s %s.schema -log %s.out", algExec, algSub, dataFile, outFile, ext, arg, dataFile, outFile,
 		)
 		_, err = cmd.RunCmd(cmdstr, timeOut)
 	case cmd.AlgSubSPN, cmd.AlgSubMT:
@@ -96,7 +114,7 @@ func commandLibra(inpDir, outDir, algExec, algSub, name string, timeOut int) {
 		cmd.RunCmd(fmt.Sprintf("rm -rf %s.ac", outFile), 0)
 		seed := time.Now().UnixNano()
 		cmdstr = fmt.Sprintf(
-			"%s %s -i %s.train -o %s.spn -seed %v -log %s.out", algExec, algSub, dataFile, outFile, seed, outFile,
+			"%s %s -i %s.train -o %s.spn -seed %v %s.schema -log %s.out", algExec, algSub, dataFile, outFile, seed, dataFile, outFile,
 		)
 		_, err = cmd.RunCmd(cmdstr, timeOut)
 		if err == nil {
