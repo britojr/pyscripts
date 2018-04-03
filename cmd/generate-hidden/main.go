@@ -12,6 +12,8 @@ import (
 	"github.com/britojr/bnutils/bif"
 	"github.com/britojr/scripts/cmd"
 	"github.com/britojr/utl/errchk"
+	"github.com/britojr/utl/ioutl"
+	"github.com/kniren/gota/dataframe"
 )
 
 var randSource = rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -71,10 +73,11 @@ func createCutFiles(inpDir, outDir, name string, cols []int) {
 			cols,
 		)
 	}
-	fmt.Println("=================")
 }
 
 func cutFile(fi, fo string, cols []int) {
-	fmt.Println(fi)
 	fmt.Println(fo)
+	df := dataframe.ReadCSV(ioutl.OpenFile(fi), dataframe.HasHeader(false)).Drop(cols)
+	err := df.WriteCSV(ioutl.CreateFile(fo), dataframe.WriteHeader(false))
+	errchk.Check(err, "")
 }
