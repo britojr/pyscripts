@@ -45,7 +45,6 @@ func main() {
 
 	for _, d := range ds {
 		name := strings.TrimSuffix(filepath.Base(d), filepath.Ext(filepath.Base(d)))
-		createSchema(inpDir, name)
 		switch {
 		case strings.Contains(algExec, cmd.AlgLibra):
 			if len(algSub) == 0 {
@@ -70,23 +69,6 @@ func main() {
 			os.Exit(1)
 		}
 	}
-}
-
-func createSchema(inpDir, name string) {
-	dataFile := inpDir + "/data/" + name
-	schema := "Schema: "
-	cmdstr := fmt.Sprintf("libra fstats -i %s/%s.bif", inpDir, name)
-	out, err := cmd.RunCmd(cmdstr, 0)
-	errchk.Check(err, string(out))
-	var hdr string
-	for _, line := range strings.Split(strings.TrimSuffix(string(out), "\n"), "\n") {
-		if len(line) > len(schema) && line[:len(schema)] == schema {
-			hdr = line[len(schema):]
-		}
-	}
-	f := ioutl.CreateFile(dataFile + ".schema")
-	fmt.Fprintf(f, "%s\n", hdr)
-	f.Close()
 }
 
 func commandLibra(inpDir, outDir, algExec, algSub, name string, timeOut int) {
