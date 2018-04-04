@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/britojr/scripts/cmd"
+	"github.com/britojr/utl/conv"
 	"github.com/britojr/utl/errchk"
 	"github.com/britojr/utl/ioutl"
 )
@@ -145,11 +146,12 @@ func commandBI(inpDir, outDir, algExec, name string, timeOut int) {
 	cmd.RunCmd("mkdir "+soluDir+" -p", 0)
 	dataFile := inpDir + "/data/" + name
 	// unlike the others, BI files must have a header and specific extension
-	trainFile, testFile := dataFile+"-train.csv", dataFile+"-test.csv"
-	copyWithHeader(trainFile, dataFile+".train")
-	copyWithHeader(testFile, dataFile+".test")
-	defer os.Remove(trainFile)
-	defer os.Remove(testFile)
+	trainFile, testFile := dataFile+"-train.arff", dataFile+"-test.arff"
+	hdr := createHeader(dataFile + ".schema")
+	copyWithHeader(trainFile, dataFile+".train", hdr)
+	copyWithHeader(testFile, dataFile+".test", hdr)
+	// defer os.Remove(trainFile)
+	// defer os.Remove(testFile)
 
 	cmdstr := fmt.Sprintf(
 		"java -Xmx2G -cp %s clustering/LearnAndTest %s %s %s", algExec, trainFile, testFile, soluDir,
@@ -192,17 +194,27 @@ func commandEAST(inpDir, outDir, algExec, name string, timeOut int) {
 	cmd.RunCmd(cmdstr, timeOut)
 }
 
-func copyWithHeader(dst, src string) {
-	line := ""
+func copyWithHeader(dst, src, hdr string) {
 	r := ioutl.OpenFile(src)
-	fmt.Fscanln(r, &line)
-	hdr := make([]string, len(strings.Split(line, ",")))
-	for i := range hdr {
-		hdr[i] = "x" + strconv.Itoa(i)
-	}
 	w := ioutl.CreateFile(dst)
-	fmt.Fprintln(w, strings.Join(hdr, ","))
-	fmt.Fprintln(w, line)
+	fmt.Fprintln(w, hdr)
 	_, err := io.Copy(w, r)
 	errchk.Check(err, "")
+}
+
+func createHeader(fname string) string {
+	line := ""
+	r := ioutl.OpenFile(fname)
+	fmt.Fscanln(r, &line)
+	vs := strings.Split(line, ",")
+	hdr := "@relation data\n"
+	for i, v := range vs {
+		states := make([]string, conv.Atoi(v))
+		for j := range states {
+			states[j] = strconv.Itoa(j)
+		}
+		hdr += fmt.Sprintf("@attribute x%d {%s}\n", i, strings.Join(states, ","))
+	}
+	hdr += "@data\n"
+	return hdr
 }
