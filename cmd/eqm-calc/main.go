@@ -60,6 +60,7 @@ func calcASELibra(inpDir, outDir, name, ext string) {
 	for _, infFile := range infFiles {
 		inf := readInfFile(infFile)
 		if len(keys) == len(inf) {
+			fmt.Println(infFile)
 			f := ioutl.CreateFile(infFile + ".ase")
 			fmt.Fprintf(f, "%v\n", stats.MSE(keys, inf))
 			f.Close()
