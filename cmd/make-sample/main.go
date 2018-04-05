@@ -70,6 +70,7 @@ func createSchema(inpDir, name string) {
 		maxs[i] = strconv.Itoa(v.NState() - 1)
 	}
 	f := ioutl.CreateFile(inpDir + "/data/" + name + ".schema")
+	fmt.Fprintf(f, "%s\n", strings.Join(cards, ","))
 	f.Close()
 	fh := ioutl.CreateFile(inpDir + "/data/" + name + ".hdr")
 	fmt.Fprintf(fh, "%s\n", strings.Join(names, ","))
