@@ -147,7 +147,7 @@ func commandBI(inpDir, outDir, algExec, name string, timeOut int) {
 	dataFile := inpDir + "/data/" + name
 	// unlike the others, BI files must have a header and specific extension
 	trainFile, testFile := dataFile+"-train.arff", dataFile+"-test.arff"
-	hdr := createHeader(dataFile + ".schema")
+	hdr := createHeader(dataFile)
 	copyWithHeader(trainFile, dataFile+".train", hdr)
 	copyWithHeader(testFile, dataFile+".test", hdr)
 	// defer os.Remove(trainFile)
@@ -202,18 +202,23 @@ func copyWithHeader(dst, src, hdr string) {
 	errchk.Check(err, "")
 }
 
-func createHeader(fname string) string {
+func createHeader(baseName string) string {
 	line := ""
-	r := ioutl.OpenFile(fname)
-	fmt.Fscanln(r, &line)
-	vs := strings.Split(line, ",")
+	fh := ioutl.OpenFile(baseName + ".hdr")
+	fmt.Fscanln(fh, &line)
+	fh.Close()
+	names := strings.Split(line, ",")
+	fs := ioutl.OpenFile(baseName + ".schema")
+	fmt.Fscanln(fs, &line)
+	fs.Close()
+	cards := strings.Split(line, ",")
 	hdr := "@relation data\n"
-	for i, v := range vs {
-		states := make([]string, conv.Atoi(v))
+	for i, name := range names {
+		states := make([]string, conv.Atoi(cards[i]))
 		for j := range states {
 			states[j] = strconv.Itoa(j)
 		}
-		hdr += fmt.Sprintf("@attribute x%d {%s}\n", i, strings.Join(states, ","))
+		hdr += fmt.Sprintf("@attribute %s {%s}\n", name, strings.Join(states, ","))
 	}
 	hdr += "@data\n"
 	return hdr
