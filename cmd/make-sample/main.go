@@ -6,9 +6,11 @@ import (
 	"math/rand"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 
+	"github.com/britojr/bnutils/bif"
 	"github.com/britojr/scripts/cmd"
 	"github.com/britojr/utl/errchk"
 	"github.com/britojr/utl/ioutl"
@@ -59,16 +61,17 @@ func main() {
 }
 
 func createSchema(inpDir, name string) {
-	cmdstr := fmt.Sprintf("libra fstats -i %s/%s.bif", inpDir, name)
-	out, err := cmd.RunCmd(cmdstr, 0)
-	errchk.Check(err, string(out))
-	schema, hdr := "Schema: ", ""
-	for _, line := range strings.Split(strings.TrimSuffix(string(out), "\n"), "\n") {
-		if len(line) > len(schema) && line[:len(schema)] == schema {
-			hdr = line[len(schema):]
-		}
+	b := bif.ParseStruct(inpDir + "/" + name + ".bif")
+	vs := b.Variables()
+	cards, names := make([]string, len(vs)), make([]string, len(vs))
+	for i, v := range vs {
+		cards[i] = strconv.Itoa(v.NState())
+		names[i] = v.Name()
 	}
 	f := ioutl.CreateFile(inpDir + "/data/" + name + ".schema")
-	fmt.Fprintf(f, "%s\n", hdr)
+	fmt.Fprintf(f, "%s\n", strings.Join(cards, ","))
 	f.Close()
+	fh := ioutl.CreateFile(inpDir + "/data/" + name + ".hdr")
+	fmt.Fprintf(fh, "%s\n", strings.Join(names, ","))
+	fh.Close()
 }
