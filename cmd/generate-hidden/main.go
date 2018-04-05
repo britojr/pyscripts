@@ -59,7 +59,7 @@ func sampleInternals(b *bif.Struct, n int) (xs []int) {
 
 func createCutFiles(inpDir, outDir, name string, cols []int) {
 	i := 1
-	for _, ext := range []string{"train", "test", "valid", "schema"} {
+	for _, ext := range []string{"train", "test", "valid", "schema", "hdr"} {
 		cutFile(
 			fmt.Sprintf("%s/data/%s.%s", inpDir, name, ext),
 			fmt.Sprintf("%s/data/%s-X%dI%d.%s", outDir, name, len(cols), i, ext),
