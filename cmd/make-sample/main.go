@@ -63,15 +63,16 @@ func main() {
 func createSchema(inpDir, name string) {
 	b := bif.ParseStruct(inpDir + "/" + name + ".bif")
 	vs := b.Variables()
-	cards, names := make([]string, len(vs)), make([]string, len(vs))
+	cards, names, maxs := make([]string, len(vs)), make([]string, len(vs)), make([]string, len(vs))
 	for i, v := range vs {
 		cards[i] = strconv.Itoa(v.NState())
 		names[i] = v.Name()
+		maxs[i] = strconv.Itoa(v.NState() - 1)
 	}
 	f := ioutl.CreateFile(inpDir + "/data/" + name + ".schema")
-	fmt.Fprintf(f, "%s\n", strings.Join(cards, ","))
 	f.Close()
 	fh := ioutl.CreateFile(inpDir + "/data/" + name + ".hdr")
 	fmt.Fprintf(fh, "%s\n", strings.Join(names, ","))
+	fmt.Fprintf(fh, "%s\n", strings.Join(maxs, ","))
 	fh.Close()
 }
