@@ -41,10 +41,11 @@ func main() {
 		name := strings.TrimSuffix(filepath.Base(d), filepath.Ext(filepath.Base(d)))
 		switch {
 		case strings.Contains(algExec, cmd.AlgLibra):
-			calcASELibra(inpDir, outDir, name, "exact")
+			calcASE(inpDir, outDir, name, "exact")
 		case strings.Contains(algExec, cmd.AlgLSDD):
 		case strings.Contains(algExec, cmd.AlgGobnilp):
 		case strings.Contains(algExec, cmd.AlgBI):
+			calcASE(inpDir, outDir, name, "exact")
 		default:
 			fmt.Printf("alg %s not supported\n", algExec)
 			os.Exit(1)
@@ -52,7 +53,7 @@ func main() {
 	}
 }
 
-func calcASELibra(inpDir, outDir, name, ext string) {
+func calcASE(inpDir, outDir, name, ext string) {
 	keyFile := inpDir + "/query/" + name + ".infkey"
 	infFiles, err := filepath.Glob(outDir + "/" + name + "*." + ext)
 	errchk.Check(err, "")
