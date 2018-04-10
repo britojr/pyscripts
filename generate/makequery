@@ -25,10 +25,5 @@ for NET in ${ROOT}/*.bif; do
    echo "qevgen -i ${NET} -o ${ROOT}/query/${NAME}.ev -n $QUERIES"
          qevgen -i ${NET} -o ${ROOT}/query/${NAME}.ev -n $QUERIES
 
-   echo "libra acve -m ${NET} -o ${ROOT}/model/${NAME}.ac &> ${ROOT}/model/${NAME}.outac"
-         libra acve -m ${NET} -o ${ROOT}/model/${NAME}.ac &> ${ROOT}/model/${NAME}.outac
-   libra fstats -i ${ROOT}/model/${NAME}.ac &>> ${ROOT}/model/${NAME}.outac
-   echo "libra acquery -m ${ROOT}/model/${NAME}.ac -q ${ROOT}/query/${NAME}.q -ev ${ROOT}/query/${NAME}.ev &> ${ROOT}/query/${NAME}.infkey"
-         libra acquery -m ${ROOT}/model/${NAME}.ac -q ${ROOT}/query/${NAME}.q -ev ${ROOT}/query/${NAME}.ev &> ${ROOT}/query/${NAME}.infkey
 done
 

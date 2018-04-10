@@ -19,7 +19,7 @@ for NET in ${ROOT}/*.bif; do
    MODEL=${ROOT}/query/${NAME}.uai
    EVID=${ROOT}/query/${NAME}.uai.evid
    QUER=${ROOT}/query/${NAME}.uai.quer
-   OUTKEY=${ROOT}/query/${NAME}.infkeys
+   OUTKEY=${ROOT}/query/${NAME}.infkey
 
    exp-run convert -i ${NET} -o ${MODEL} -t bif2uai
    exp-run convert -i ${ROOT}/query/${NAME}.ev -o ${EVID} -t ev2evid
