@@ -1,0 +1,32 @@
+#!/bin/bash
+# -----------------------------------------------------------------------------
+# USAGE:
+# ./makekeys repo
+# -----------------------------------------------------------------------------
+
+ROOT="repo"
+
+if [ "$1" != "" ]; then
+   ROOT=$1
+fi
+
+SOLVER="/var/fasttmp/brito/libdai/examples/solver"
+for NET in ${ROOT}/*.bif; do
+   NAME=$(basename "$NET")
+   NAME=${NAME%.bif}
+   SEED=0
+
+   MODEL=${ROOT}/query/${NAME}.uai
+   EVID=${ROOT}/query/${NAME}.uai.evid
+   QUER=${ROOT}/query/${NAME}.uai.quer
+   OUTKEY=${ROOT}/query/${NAME}.infkeys
+
+   exp-run convert -i ${NET} -o ${MODEL} -t bif2uai
+   exp-run convert -i ${ROOT}/query/${NAME}.ev -o ${EVID} -t ev2evid
+   exp-run convert -i ${ROOT}/query/${NAME}.q  -o ${QUER} -t ev2evid
+
+   echo "${SOLVER} ${MODEL} ${EVID} ${QUER} ${SEED} MAR &> ${OUTKEY}"
+   ${SOLVER} ${MODEL} ${EVID} ${QUER} ${SEED} MAR &> ${OUTKEY}
+
+done
+
