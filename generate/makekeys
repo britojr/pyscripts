@@ -10,7 +10,7 @@ if [ "$1" != "" ]; then
    ROOT=$1
 fi
 
-SOLVER="/var/fasttmp/brito/libdai/examples/solver"
+SOLVER="dai-solver"
 for NET in ${ROOT}/*.bif; do
    NAME=$(basename "$NET")
    NAME=${NAME%.bif}
@@ -19,14 +19,16 @@ for NET in ${ROOT}/*.bif; do
    MODEL=${ROOT}/query/${NAME}.uai
    EVID=${ROOT}/query/${NAME}.uai.evid
    QUER=${ROOT}/query/${NAME}.uai.quer
-   OUTKEY=${ROOT}/query/${NAME}.infkey
+   OUT=${ROOT}/query/${NAME}.dailog
 
    exp-run convert -i ${NET} -o ${MODEL} -t bif2uai
    exp-run convert -i ${ROOT}/query/${NAME}.ev -o ${EVID} -t ev2evid
    exp-run convert -i ${ROOT}/query/${NAME}.q  -o ${QUER} -t ev2evid
 
-   echo "${SOLVER} ${MODEL} ${EVID} ${QUER} ${SEED} MAR &> ${OUTKEY}"
-   ${SOLVER} ${MODEL} ${EVID} ${QUER} ${SEED} MAR &> ${OUTKEY}
+   echo "${SOLVER} ${MODEL} ${EVID} ${QUER} &> ${OUT}"
+   ${SOLVER} ${MODEL} ${EVID} ${QUER} &> ${OUT}
+   echo "${SOLVER} ${MODEL} ${EVID} &>> ${OUT}"
+   ${SOLVER} ${MODEL} ${EVID} &>> ${OUT}
 
 done
 
